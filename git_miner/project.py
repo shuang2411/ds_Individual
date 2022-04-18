@@ -32,27 +32,51 @@ class Project:
         #  {author_name: n of modified files}
         self.author_modified_files = {}
         self.commit_most_modified_lines = {'hash': None, 'lines': 0}
+        self.modifed_smells_arr = []
+        self.unmodified_smells_arr = []
 
     def collect_statistics(self):
         repo_local_path = RepositoryClone.clone(self.name, self.url, self.branch)
+        print(self.starting_commit,self.ending_commit)
+        
+        
         repo = Repository(self.url, from_commit=self.starting_commit, to_commit=self.ending_commit)
 
         generator = repo.traverse_commits()
-
+        
+      
+       
+        
+        
         for commit in generator:
+            print(commit.hash)
             project_smells = self.detect_smells_all_commit(commit.hash,repo_local_path)
             
-            for files in commit.modified_files :
+            total_class,total_method = project_smells.get_total_smells()
+            total_smell = total_class + total_method
+            modified_total_smell = 0
+            
+            for files in commit.modified_files:
                 path = files.new_path
+                
+                if path is None:
+                    path = files.old_path
+            
                 if '/test' in path:
                     continue
                 
-                class_name = _path_to_class(path)
+                class_smell, method_smell = project_smells.get_smell_for_class(path)
                 
-                total_class, total_method = project_smells.get_smell_for_class(class_name)
-                print(total_class, total_method)
-                return
-           
+                modified_total_smell += class_smell
+                modified_total_smell += method_smell
+                
+            
+            
+            self.modifed_smells_arr.append(modified_total_smell)
+            self.unmodified_smells_arr.append(total_smell - modified_total_smell)
+            
+        print(self.modifed_smells_arr)
+        print(self.unmodified_smells_arr)
 
     def process_commit(self, commit, project_smells):
         modified_files = commit.modified_files 

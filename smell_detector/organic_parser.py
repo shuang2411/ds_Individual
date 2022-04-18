@@ -28,11 +28,15 @@ class OrganicParser:
         for d in data:
             if '/test' in d['sourceFile']['fileRelativePath']:
                 continue
-
-            smelly_class = project_smells.SmellyClass(d['fullyQualifiedName'])
+            
+            path = d['sourceFile']['fileRelativePath']
+            idx = path.find("src")
+            path = path[idx:]
+            
+            smelly_class = project_smells.SmellyClass(path)
             smelly_class.add_class_level_smells(_get_smells(d['smells']))
             
-            print(smelly_class.fully_qualified_name)
+          
             
             for method in d['methods']:
                 if method['smells']:

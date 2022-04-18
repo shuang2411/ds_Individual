@@ -18,9 +18,9 @@ class ProjectSmells:
 
         return total_class, total_method
     
-    def get_smell_for_class(self, fully_qualified_name):
+    def get_smell_for_class(self, path):
         for e in self.smelly_elements:
-            if e.fully_qualified_name == fully_qualified_name:
+            if e.path == path:
                 return e.get_total_smells()
 
         return 0,0
@@ -31,8 +31,8 @@ class ProjectSmells:
     #            f' smells {total_class} class-level smells and {total_method} method-level smell'
 
     class SmellyClass:
-        def __init__(self, fully_qualified_name):
-            self.fully_qualified_name = fully_qualified_name
+        def __init__(self, path):
+            self.path = path
 
             self.class_smells = []
             self.method_smells = []
